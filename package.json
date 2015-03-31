@@ -1,0 +1,26 @@
+{
+  "name": "gulp-sassvg",
+  "version": "0.0.1",
+  "description": "Takes SVG-Files and turns them into a sass-mixin, which may afterwards be used to to create modified (e.g. colorized) background-images.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MattDiMu/gulp-sassvg"
+  },
+  "keywords": [
+    "sass",
+    "scss",
+    "svg",
+    "colorize",
+    "dynamic"
+  ],
+  "author": "Matthias Müller",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MattDiMu/gulp-sassvg/issues"
+  },
+  "homepage": "https://github.com/MattDiMu/gulp-sassvg"
+}
