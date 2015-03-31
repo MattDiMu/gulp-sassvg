@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/MattDiMu/gulp-sassvg/issues"
   },
-  "homepage": "https://github.com/MattDiMu/gulp-sassvg"
+  "homepage": "https://github.com/MattDiMu/gulp-sassvg",
+  "dependencies": {
+    "directory-colorfy": "^2.0.3",
+    "directory-encoder": "^0.7.0"
+  }
 }
