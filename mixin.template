@@ -12,7 +12,7 @@ $opacity: 1,
 $extrastyles: ""){
 
 @if($opacity != 1){
-    $extrastyles = "opacity:" + $opacity + ";" + $extrastyles
+    $extrastyles: "opacity:" + $opacity + ";" + $extrastyles
 }
 
 $icon--map: (#####REPLACED#####);
