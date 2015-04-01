@@ -1,0 +1,29 @@
+/// use this to do some epic svg manipulation
+/// @author Matthias Müller
+
+$sassvg--color-default: #000;
+
+@mixin icon($icon, 
+$fillcolor: $sassvg--color-default, 
+$background-position: 0 50%,
+$background-repeat: no-repeat,
+$strokecolor: $fillcolor, 
+$opacity: 1,
+$extrastyles: ""){
+
+@if($opacity != 1){
+    $extrastyles = "opacity:" + $opacity + ";" + $extrastyles
+}
+
+$icon--map: (#####REPLACED#####);
+    
+    //some sanity checks
+    @if(type-of($icon) != "string" or type-of($color) != "color" or map-has-key($icon--map, $icon) == false){
+        @warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
+    }@else{
+        $icon-data: map-get($icon--map, $icon);
+        background-image: url($icon-data);
+        background-position: $background-position;
+        background-repeat: $background-repeat;
+    }
+}
