@@ -1,3 +1,5 @@
 # gulp-sassvg
 
-TBD
+### placeholder for a short gif/video
+
+# How to use
