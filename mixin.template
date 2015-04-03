@@ -1,27 +1,44 @@
 /// use this to do some epic svg manipulation
 /// @author Matthias Müller
-
 $sassvg--color-default: #000;
 
-@mixin icon($icon, 
-$fillcolor: $sassvg--color-default, 
-$background-position: 0 50%,
-$background-repeat: no-repeat,
-$strokecolor: $fillcolor, 
-$opacity: 1,
-$extrastyles: ""){
+/// @todo we might remove the rgb output as SVG browser all support rgba, right?
+@function uri-encode-color($color){
+	@if(alpha($color) != 1){
+		@return "rgba%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%2C" + round(alpha($color)) + "%29";
+	}@else{
+		@return "rgb%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%29";
+	}
+}
+
+
+
+
+@mixin icon(
+    $icon, 
+    $fillcolor: $sassvg--color-default, 
+    $background-position: 0 50%,
+    $background-repeat: no-repeat,
+    $strokecolor: $fillcolor, 
+    $opacity: 1,
+    $extrastyles: ""
+){
 
 @if($opacity != 1){
     $extrastyles: "opacity:" + $opacity + ";" + $extrastyles
 }
 
-$icon--map: (#####REPLACED#####);
+$fillcolor: uri-encode-color($fillcolor);
+
+
+$icon--map: (#####REPLACED#####
+);
     
     //some sanity checks
     @if(type-of($icon) != "string" or type-of($color) != "color" or map-has-key($icon--map, $icon) == false){
         @warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
     }@else{
-        $icon-data: map-get($icon--map, $icon);
+        $icon-data: map-get(map-get($icon--map, $icon), 'data');
         background-image: url($icon-data);
         background-position: $background-position;
         background-repeat: $background-repeat;

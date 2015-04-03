@@ -1,62 +1,124 @@
 //require what we need
 var through = require('through2')
 , gutil = require('gulp-util')
-, fs = require('fs');
+, fs = require('fs')
+, cheerio = require('cheerio')
+, SVGO = require('svgo')
+, svgo = new SVGO();;
 
-const PLUGIN_NAME = 'gulp-sassvg:';
+
+
+const PLUGIN_NAME = 'gulp-sassvg';
 
 const DATA_PREFIX = "data:image/svg+xml;charset=US-ASCII,";
 
-function encodeSvg(content){
-    return DATA_PREFIX + encodeURIComponent( content.toString('utf-8')
-                .replace(/[\t\n\r]/gmi, " ") //replace tab, linefeed and carrriage return
-                .replace(/<\!\-\-(.*(?=\-\->))\-\->/gmi, "") //remove comments
-            )
-            .replace(/\(/g, "%28") // opening brackets
-            .replace(/\)/g, "%29") // closing brackets
-            .replace(/"/g, "%22"); // double quotes 
+
+
+
+function fileNameFromPath(filePath){
+    return filePath.split('\\').pop().split('/').pop().replace(/\.[^/.]+$/, "");
 }
 
-function cleanSvg(content){
-    return content.toString().replace(/'/gm, "\"");   
-}
-
-
-function decodeSassVariables(content){
-    return content.replace(/%24fillcolor/gm, "#{$fillcolor}")
-            .replace(/%24strokecolor/gm, "#{$strokecolor}")
-            .replace(/%24extrastyles/gm, "#{$extrastyles}   ");
-}
-
-function addSassVariables(content){
-    content = content.replace(/(fill=")((?!none).*)(")/gmi, "$1$fillcolor$3") //add $fillcolor
-        .replace(/(style *= *"[^"]*)(fill *: *)([^;"]*)/gmi, "$1$2$fillcolor") //add $fillcolor to styles
-        .replace(/(stroke=")((?!none).*)(")/gmi, "$1$strokecolor$3") //add $strokecolor
-        .replace(/(style *= *"[^"]*)(stroke *: *)([^;"]*)/gmi, "$1$2$strokecolor"); //add $strokecolor to styles
-    if(content.match(/(<svg[^>]*style="[^>"]*)(")([^>]*>)/) != null){
-        return content.replace(/(<svg[^>]*style=")([^>"]*")([^>]*>)/gmi, "$1$extrastyles$2$3");
-    }else{
-        return content.replace(/(<svg[^>]*)(>)/gmi, '$1 style="$extrastyles"$2');
+function folderNameFromPath(filePath){
+    var firstSplit = filePath.split('\\');
+    if(firstSplit.length > 1){
+        return firstSplit[firstSplit.length - 2];
     }
+    
+    var secondSplit = filePath.split('/');
+    if(secondSplit.length > 1){
+        return secondSplit[secondSplit.length - 2];
+    }
+    return "";
 }
-                           
-var gulpSassvg = function(options){
-    this.options = options || {};
-    this.options.tmpDir = this.options.tmpDir || "./.tmp-sassvg/"; //TODO add some options
-    this.options.outputFile = this.options.outputFile || "./scss/_icons.scss"; //TODO add some options
-    
+
+function sassVarRegex(variableName){
+    return new RegExp(encodeURIComponent("#{$") + variableName + encodeURIComponent("}"), "gm"); // #{$variableName}
+}
+
+
+
+function addVariables(fileContent){
+        var $ = cheerio.load(fileContent, {
+            normalizeWhitespace: true,
+            xmlMode: true
+        });
+        $('[fill]').not('[fill=none]').attr('fill', '#{$fillcolor}');
+		$('[style]').css("fill", "red");
+        $('[stroke]').not('[stroke=none]').attr('stroke', '#{$strokecolor}');
+        return $.html('svg'); //return only the svg    
+}
+
+function encodeSVG(dynamicContent){
+    return encodeURIComponent(dynamicContent.replace(/[\t\n\r]/gmi, " ")) //replace tab, linefeed and carriage return
+        .replace(/\(/g, "%28") // opening brackets
+        .replace(/\)/g, "%29") // closing brackets
+        .replace(/["']/g, "%22"); // double quotes 
+  
+}
+
+function decodeVariables(encodedContent){
+    return encodedContent.replace(sassVarRegex("fillcolor"), "#{$fillcolor}")
+        .replace(sassVarRegex("strokecolor"), "#{$strokecolor}")
+        .replace(sassVarRegex("extrastyles"), "#{$extrastyles}");
+}
+
+function assembleDataString(fileName, folderName, finalContent){
+    return "\n\t'" + fileName + "': ( \n\t\t'folder': '" + folderName + "',\n\t\t'data': '" +  DATA_PREFIX + finalContent + "'\n\t),";
+}
+
+function optimizeSvg(writeStream, cb, filePath, svgString){
+    svgo.optimize(svgString, function(result) {
+		var optimizedSvg;
+		if(result.error){
+			throw new gutil.PluginError(PLUGIN_NAME, "SVG couldn't be optimized: '" + file.path +  "', will try to SASSVG it without optimizing.");
+			optimizedSvg = String(file.contents);
+		}else{
+			optimizedSvg = result.data;	
+		}
+		sassvgIt(writeStream, cb, filePath, svgString);
+    });
+}
+
+function sassvgIt(writeStream, cb, filePath, svgString){
+	writeStream.write(
+		assembleDataString(
+			fileNameFromPath(filePath),
+			folderNameFromPath(filePath),
+			decodeVariables(
+				encodeSVG(
+					addVariables(
+						svgString
+					)
+				)
+			)
+		)
+	);
+	cb();
+}
+
+var options                           
+var gulpSassvg = function(optionsGiven){
+    options = optionsGiven || {};
+    options.tmpDir = optionsGiven.tmpDir || "./.tmp-sassvg/"; //TODO still necessary?
+    options.outputFile = optionsGiven.outputFile || "./scss/_icons.scss"; //TODO add some options
+	options.optimizeSvg = (optionsGiven.optimizeSvg !== undefined) ? optionsGiven.optimizeSvg : true; //true = 25% less filesize, but 3 times as long to create the sass file
+	
     var template = fs.readFileSync(__dirname + "/mixin.template", "utf8").split("#####REPLACED#####");
-    this.header = template[0];
-    this.footer = template[1];
+    header = template[0];
+    footer = template[1];
     
-    var writeStream = fs.createWriteStream(this.options.outputFile);
+    var writeStream = fs.createWriteStream(options.outputFile);
     writeStream.write(header);
     
     function listStream(file, enc, cb){
-        var filePath = file.path;
-        var fileName = filePath.split('\\').pop().split('/').pop().replace(/\.[^/.]+$/, ""); 
-        writeStream.write("\n\t'" + fileName + "': '" + decodeSassVariables(encodeSvg(addSassVariables(cleanSvg(file.contents)))) + "',");
-        cb();
+		
+		if(options.optimizeSvg){
+			optimizeSvg(writeStream, cb, file.path, String(file.contents))
+		}else{
+			sassvgIt(writeStream, cb, file.path, String(file.contents));
+		}
+
     }
     
     function endStream(cb){
