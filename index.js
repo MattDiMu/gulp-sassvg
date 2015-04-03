@@ -7,7 +7,7 @@ var through = require('through2')
 , svgo = new SVGO();;
 
 
-
+// TODO rework with classes and promises, much less functions
 const PLUGIN_NAME = 'gulp-sassvg';
 
 const DATA_PREFIX = "data:image/svg+xml;charset=US-ASCII,";
@@ -32,19 +32,36 @@ function folderNameFromPath(filePath){
     return "";
 }
 
-function sassVarRegex(variableName){
-    return new RegExp(encodeURIComponent("#{$") + variableName + encodeURIComponent("}"), "gm"); // #{$variableName}
+function sassVarRegex(variableName, optionalSuffix){
+	var suffix = (optionalSuffix !== undefined) ? encodeURIComponent(optionalSuffix) : "";
+    return new RegExp(encodeURIComponent("#{$") + variableName + encodeURIComponent("}") + suffix, "gm"); // #{$variableName}
 }
 
 
 
-function addVariables(fileContent){
+function addVariables(filePath, fileContent){
         var $ = cheerio.load(fileContent, {
             normalizeWhitespace: true,
             xmlMode: true
         });
+		if($('svg').length !== 1){
+			throw new gutil.PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
+		}
         $('[fill]').not('[fill=none]').attr('fill', '#{$fillcolor}');
-		$('[style]').css("fill", "red");
+		$('[style]').each(function(){
+			var fillValue = $(this).css("fill");
+			if(fillValue !== undefined && fillValue !== 'none'){
+				$(this).css("fill", "#{$fillcolor}");	
+			}
+			var strokeValue = $(this).css("stroke");
+			if(strokeValue !== undefined && strokeValue !== 'none'){
+				$(this).css("stroke", "#{$strokecolor}");	
+			}
+		});
+		$('svg').each(function(){
+			var styles = $(this).attr("style");
+			$(this).css("empty", "empty;#{$extrastyles}"); //not the very best solution, but makes it valid and works everytime - empty props will be regexed out again
+		});
         $('[stroke]').not('[stroke=none]').attr('stroke', '#{$strokecolor}');
         return $.html('svg'); //return only the svg    
 }
@@ -60,11 +77,12 @@ function encodeSVG(dynamicContent){
 function decodeVariables(encodedContent){
     return encodedContent.replace(sassVarRegex("fillcolor"), "#{$fillcolor}")
         .replace(sassVarRegex("strokecolor"), "#{$strokecolor}")
-        .replace(sassVarRegex("extrastyles"), "#{$extrastyles}");
+        .replace(sassVarRegex("extrastyles", ";"), "#{$extrastyles}")
+		.replace(/empty%3A%20empty%3B/gm, "");//correct the empty styles props
 }
 
-function assembleDataString(fileName, folderName, finalContent){
-    return "\n\t'" + fileName + "': ( \n\t\t'folder': '" + folderName + "',\n\t\t'data': '" +  DATA_PREFIX + finalContent + "'\n\t),";
+function assembleDataString(fileName, finalContent){
+    return "\n\t'" + fileName + "': '" +  DATA_PREFIX + finalContent + "',";
 }
 
 function optimizeSvg(writeStream, cb, filePath, svgString){
@@ -84,10 +102,10 @@ function sassvgIt(writeStream, cb, filePath, svgString){
 	writeStream.write(
 		assembleDataString(
 			fileNameFromPath(filePath),
-			folderNameFromPath(filePath),
 			decodeVariables(
 				encodeSVG(
 					addVariables(
+						filePath,
 						svgString
 					)
 				)
@@ -110,9 +128,12 @@ var gulpSassvg = function(optionsGiven){
     
     var writeStream = fs.createWriteStream(options.outputFile);
     writeStream.write(header);
-    
+    var sassvgMap = "\n\n$sassvg: (";
+	
     function listStream(file, enc, cb){
-		
+		var folderName = folderNameFromPath(file.path);
+		var fileName = fileNameFromPath(file.path);
+		sassvgMap += "'" + fileName + "': ('name': '" + fileName + "', 'folder': '" + folderName + "'),";
 		if(options.optimizeSvg){
 			optimizeSvg(writeStream, cb, file.path, String(file.contents))
 		}else{
@@ -123,6 +144,8 @@ var gulpSassvg = function(optionsGiven){
     
     function endStream(cb){
         writeStream.write(footer);
+		sassvgMap += ");";
+		writeStream.write(sassvgMap);
         writeStream.end();
         cb();
     }

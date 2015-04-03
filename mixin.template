@@ -16,10 +16,11 @@ $sassvg--color-default: #000;
 
 @mixin icon(
     $icon, 
-    $fillcolor: $sassvg--color-default, 
+    $color: $sassvg--color-default, 
     $background-position: 0 50%,
     $background-repeat: no-repeat,
-    $strokecolor: $fillcolor, 
+	$fillcolor: $color,
+    $strokecolor: $color, 
     $opacity: 1,
     $extrastyles: ""
 ){
@@ -43,4 +44,15 @@ $icon--map: (#####REPLACED#####
         background-position: $background-position;
         background-repeat: $background-repeat;
     }
+}
+
+/// returns all sassvg-ed icons, optionally filtered by their folder
+@function icon-list($folder: null){
+	$iconlist: "";
+	@each $submap in map-keys($sassvg){
+		@if(map-get($submap, "folder") == $folder){
+			append($iconlist, map-get($submap, "name"));
+		}
+	}
+	@return $iconlist;
 }
