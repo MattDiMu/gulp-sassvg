@@ -1,6 +1,6 @@
 # gulp-sassvg
 
-This plugin is currently under development. Feel free to write questions/contribute, but do NOT use in production yet!
+This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but do NOT use in production yet!
 
 # How to use
 
