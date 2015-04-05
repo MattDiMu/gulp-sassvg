@@ -7,7 +7,7 @@ var through = require('through2')
 , svgo = new SVGO();;
 
 
-// TODO rework with classes and promises, much less functions
+// TODO rework with js classes/prototypes and promises, much less functions
 const PLUGIN_NAME = 'gulp-sassvg';
 
 const DATA_PREFIX = "data:image/svg+xml;charset=US-ASCII,";
