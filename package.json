@@ -1,6 +1,6 @@
 {
   "name": "gulp-sassvg",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Takes SVG-Files and turns them into a sass-mixin, which may afterwards be used to to create modified (e.g. colorized) background-images.",
   "main": "index.js",
   "scripts": {
