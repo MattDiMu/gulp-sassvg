@@ -14,15 +14,13 @@ $sassvg--color-default: #000;
 
 
 
-@mixin icon(
-    $icon, 
-    $color: $sassvg--color-default, 
-    $background-position: 0 50%,
-    $background-repeat: no-repeat,
+@function sassvg(
+	$icon, 
+	$color: $sassvg--color-default, 
 	$fillcolor: $color,
-    $strokecolor: $color, 
-    $opacity: 1,
-    $extrastyles: ""
+	$strokecolor: $color, 
+	$opacity: 1,
+	$extrastyles: ""
 ){
 
 @if($opacity != 1){
@@ -35,24 +33,22 @@ $fillcolor: uri-encode-color($fillcolor);
 $icon--map: (#####REPLACED#####
 );
     
-    //some sanity checks
-    @if(type-of($icon) != "string" or type-of($color) != "color" or map-has-key($icon--map, $icon) == false){
-        @warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
-    }@else{
-        $icon-data: map-get(map-get($icon--map, $icon), 'data');
-        background-image: url($icon-data);
-        background-position: $background-position;
-        background-repeat: $background-repeat;
-    }
+//some sanity checks
+@if(type-of($icon) != "string" or type-of($color) != "color" or map-has-key($icon--map, $icon) == false){
+		@warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
+}@else{
+		@return map-get($icon--map, $icon);
+}
+
 }
 
 /// returns all sassvg-ed icons, optionally filtered by their folder
-@function icon-list($folder: null){
-	$iconlist: null;
+@function sassvg-list($folder: null){
+	$iconlist: ();
 	@each $key in map-keys($sassvg){
 
 		@if(map-get(map-get($sassvg, $key), 'folder') == $folder){
-      $iconlist: append($iconlist, map-get(map-get($sassvg, $key), 'name'));
+      $iconlist: append($iconlist, unquote(map-get(map-get($sassvg, $key), 'name')));
 		}
 	}
 	@return $iconlist;
