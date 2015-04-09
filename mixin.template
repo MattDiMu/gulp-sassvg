@@ -48,10 +48,11 @@ $icon--map: (#####REPLACED#####
 
 /// returns all sassvg-ed icons, optionally filtered by their folder
 @function icon-list($folder: null){
-	$iconlist: "";
-	@each $submap in map-keys($sassvg){
-		@if(map-get($submap, "folder") == $folder){
-			append($iconlist, map-get($submap, "name"));
+	$iconlist: null;
+	@each $key in map-keys($sassvg){
+
+		@if(map-get(map-get($sassvg, $key), 'folder') == $folder){
+      $iconlist: append($iconlist, map-get(map-get($sassvg, $key), 'name'));
 		}
 	}
 	@return $iconlist;
