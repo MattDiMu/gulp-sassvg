@@ -1,3 +1,8 @@
+# TODO
+- usage of classes & promises
+- separation into node-sassvg and gulp-sassvg
+- usage of a templating like underscore/handlebars
+
 # gulp-sassvg
 
 This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but do NOT use in production yet!
