@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/gulp-sassvg.svg)](http://badge.fury.io/js/gulp-sassvg)
+
 # gulp-sassvg
 
 This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but do NOT use in production yet!
