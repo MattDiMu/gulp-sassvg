@@ -1,0 +1,62 @@
+/// use this to do some epic svg manipulation
+/// @author Matthias Müller
+$sassvg--color-default: #000;
+
+@import "sassvg-data";
+
+/// trying rgb-support for old android browsers...if possible
+/// @return uri-encoded color value
+@function uri-encode-color($color){
+	@if(alpha($color) != 1){
+		@return "rgba%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%2C" + round(alpha($color)) + "%29";
+	}@else{
+		@return "rgb%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%29";
+	}
+}
+
+
+/// creates a dynamic svg, e.g. colored
+///
+/// @param {filename} name of the @include icon
+///
+/// @throws exception if units are wrong/missing
+///
+/// @example background-image: sassvg("iconname", blue);
+///
+/// @return image (as data-string)
+@function sassvg(
+	$icon, 
+	$color: $sassvg--color-default, 
+	$fillcolor: $color,
+	$strokecolor: $color, 
+	$opacity: 1,
+	$extrastyles: ""
+){
+	@if($opacity != 1){
+	$extrastyles: "opacity:" + $opacity + ";" + $extrastyles
+	}
+
+	$fillcolor: uri-encode-color($fillcolor);
+	$strokecolor: uri-encode-color($strokecolor);
+	$functionname: "sassvg-" + $icon;
+
+	//some sanity checks
+	@if(type-of($icon) != "string" or type-of($color) != "color" or function-exists($functionname) == false){
+		@warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
+	}@else{
+		@return call($functionname, $fillcolor, $strokecolor, $extrastyles);
+	}
+
+}
+
+/// returns all sassvg-ed icons, optionally filtered by their folder
+@function sassvg-list($folder: null){
+	$iconlist: ();
+	@each $key in map-keys($sassvg){
+
+		@if(map-get(map-get($sassvg, $key), 'folder') == $folder){
+      $iconlist: append($iconlist, unquote(map-get(map-get($sassvg, $key), 'name')));
+		}
+	}
+	@return $iconlist;
+}
