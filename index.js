@@ -82,7 +82,7 @@ function decodeVariables(encodedContent){
 }
 
 function assembleDataString(fileName, finalContent){
-    return "\n\t'" + fileName + "': '" +  DATA_PREFIX + finalContent + "',";
+    return "@function sassvg-" + fileName + "($fillcolor, $strokecolor, $extrastyles){ @return '" + DATA_PREFIX + finalContent + "'; }\n";
 }
 
 function optimizeSvg(writeStream, cb, filePath, svgString){
@@ -119,15 +119,17 @@ var options
 var gulpSassvg = function(optionsGiven){
     options = optionsGiven || {};
     options.tmpDir = optionsGiven.tmpDir || "./.tmp-sassvg/"; //TODO still necessary?
-    options.outputFile = optionsGiven.outputFile || "./scss/_icons.scss"; //TODO add some options
-	options.optimizeSvg = (optionsGiven.optimizeSvg !== undefined) ? optionsGiven.optimizeSvg : true; //true = 25% less filesize, but 3 times as long to create the sass file
+    options.outputFolder = optionsGiven.outputFolder || "./scss/"; //TODO add some options
+		options.outputMainFile = options.outputFolder + "_sassvg.scss";
+		options.outputDataFile = options.outputFolder + "_sassvg-data.scss";
+		options.optimizeSvg = (optionsGiven.optimizeSvg !== undefined) ? optionsGiven.optimizeSvg : true; //true = 25% less filesize, but 3 times as long to create the sass file
 	
-    var template = fs.readFileSync(__dirname + "/mixin.template", "utf8").split("#####REPLACED#####");
-    header = template[0];
-    footer = template[1];
-    
-    var writeStream = fs.createWriteStream(options.outputFile);
-    writeStream.write(header);
+		var writeStreamMain = fs.createWriteStream(options.outputMainFile);
+		writeStreamMain.write(fs.readFileSync(__dirname + "/_sassvg.scss", "utf8"));
+		writeStreamMain.end();
+	
+    var writeStream = fs.createWriteStream(options.outputDataFile);
+
     var sassvgMap = "\n\n$sassvg: (";
 	
     function listStream(file, enc, cb){
@@ -143,9 +145,8 @@ var gulpSassvg = function(optionsGiven){
     }
     
     function endStream(cb){
-        writeStream.write(footer);
-		sassvgMap += ");";
-		writeStream.write(sassvgMap);
+				sassvgMap += ");";
+				writeStream.write(sassvgMap);
         writeStream.end();
         cb();
     }
