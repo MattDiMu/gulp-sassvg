@@ -2,7 +2,7 @@
 
 # gulp-sassvg
 
-This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but do NOT use in production yet!
+This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but I wouldn't recommend the production use....yet :)
 
 # How to use
 
