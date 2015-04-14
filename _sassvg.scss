@@ -70,12 +70,32 @@ $sassvg--color-default: #000;
 }
 
 /// returns all sassvg-ed icons, optionally filtered by their folder
+/// @param {folder} $folder - optional, filter by the folder the icons are in
+/// @return {list} - a list of icon-names, which may be used by the sassvg() function
+/// @example scss - in case you have 2 icons (facebook.svg and twitter.svg) in your folder "social"
+/// 	$folder: "social";
+/// 	@each $icon in sassvg-list($folder){
+/// 			$data: sassvg($icon, #1a1ab4);
+/// 			.#{$folder}-#{$icon} {
+/// 					background-image: url(#{$data});
+/// 			}
+/// 	}
+///
+/// @example css - then it will generate css like this
+/// 	
+/// 	.social-facebook {
+/// 		background-image: url(data:image/svg+xml...);
+/// 	}
+/// 	.social-twitter {
+/// 		background-image: url(data:image/svg+xml...);
+/// 	} 	
+///
 @function sassvg-list($folder: null){
 	$iconlist: ();
-	@each $key in map-keys($sassvg){
+	@each $key in map-keys($sassvg-map){
 
-		@if(map-get(map-get($sassvg, $key), 'folder') == $folder){
-      $iconlist: append($iconlist, unquote(map-get(map-get($sassvg, $key), 'name')));
+		@if(map-get(map-get($sassvg-map, $key), 'folder') == $folder){
+      $iconlist: append($iconlist, unquote(map-get(map-get($sassvg-map, $key), 'name')));
 		}
 	}
 	@return $iconlist;
