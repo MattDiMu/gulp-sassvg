@@ -130,7 +130,7 @@ var gulpSassvg = function(optionsGiven){
 	
     var writeStream = fs.createWriteStream(options.outputDataFile);
 
-    var sassvgMap = "\n\n$sassvg: (";
+    var sassvgMap = "\n\n$sassvg-map: (";
 	
     function listStream(file, enc, cb){
 		var folderName = folderNameFromPath(file.path);
