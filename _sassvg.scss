@@ -5,7 +5,7 @@ $sassvg--color-default: #000;
 @import "sassvg-data";
 
 /// trying rgb-support for old android browsers...if possible
-/// @return uri-encoded color value
+/// @return {color} (uri-encoded)
 @function uri-encode-color($color){
 	@if(alpha($color) != 1){
 		@return "rgba%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%2C" + round(alpha($color)) + "%29";
@@ -21,9 +21,10 @@ $sassvg--color-default: #000;
 ///
 /// @throws exception if units are wrong/missing
 ///
-/// @example background-image: sassvg("iconname", blue);
+/// @example
+/// 	background-image: sassvg("iconname", blue);
 ///
-/// @return image (as data-string)
+/// @return {image} (as data-string)
 @function sassvg(
 	$icon, 
 	$color: $sassvg--color-default, 
