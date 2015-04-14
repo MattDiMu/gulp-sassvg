@@ -1,10 +1,20 @@
+////
 /// use this to do some epic svg manipulation
 /// @author Matthias Müller
+/// @group sassvg
+////
+
+/// default color, if the sassvg() mixin gets no color parameter
+/// you may redefine this value multiple times in your project (before including the mixin)
+/// @type {color}
+/// @example 
+/// $sassvg--color-default
 $sassvg--color-default: #000;
 
 @import "sassvg-data";
 
-/// trying rgb-support for old android browsers...if possible
+/// returns an uri-encoded color value
+/// if possible, the color is reduced to rgb, otherwise rgba
 /// @return {color} (uri-encoded)
 @function uri-encode-color($color){
 	@if(alpha($color) != 1){
@@ -17,14 +27,23 @@ $sassvg--color-default: #000;
 
 /// creates a dynamic svg, e.g. colored
 ///
-/// @param {filename} name of the @include icon
+/// @param {filename} $icon - name of the @include icon
+/// @param {color} $color - used for fill and stroke (if present) attributes
+/// @param {color} $fillcolor - explicitly used only for fill attributes
+/// @param {color} $strokecolor - explicitly used only for stroke attributes (if present)
+/// @param {decimalNumber} $opacity - opacity of the svg (NOT the opacity of the element)
+/// @param {uri escaped String} $extrastyles - expert option, may be used to insert style attributes, this currently needs to be an uri-escaped value, or it won't work in IE !!!!
 ///
 /// @throws exception if units are wrong/missing
+/// @require {variable} $sassvg--color-default
+/// @require {function} uri-encode-color
 ///
 /// @example
 /// 	background-image: sassvg("iconname", blue);
+/// 	background-image: sassvg("facebook", #FFAFF ); 
+/// 	background-image: sassvg("arrow-left", rgba(224, 51, 224, 0.79)); 
 ///
-/// @return {image} (as data-string)
+/// @return {image} - (as data-string)
 @function sassvg(
 	$icon, 
 	$color: $sassvg--color-default, 
@@ -34,7 +53,7 @@ $sassvg--color-default: #000;
 	$extrastyles: ""
 ){
 	@if($opacity != 1){
-	$extrastyles: "opacity:" + $opacity + ";" + $extrastyles
+	$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles
 	}
 
 	$fillcolor: uri-encode-color($fillcolor);
