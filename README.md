@@ -24,6 +24,17 @@ gulp.task('sassvg', function(){
 });
 ```
 
+## 
+````scss
+@import "_sassvg.scss;
+
+.selector {
+  background-image: url( sassvg('filename') );
+}
+````
+
+
+
 #FAQ
 **Why does this plugin create so many sassvg-*iconname* functions?**
 Due to performance reasons. I've tested all possibilities to create dynamic SVGs with SASS (one huge map in a mixin, assembling the SVG from single strings, str_replace the dynamic parts) and this solution scales (by far) best! Adding some hundred icons is no problem :-)
