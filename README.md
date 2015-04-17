@@ -33,6 +33,9 @@ gulp.task('sassvg', function(){
 }
 ````
 
+#Documentation
+Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.scss file, should be clear how to use the provided sassvg() and the sassvg-list() functions.
+
 
 
 #FAQ
