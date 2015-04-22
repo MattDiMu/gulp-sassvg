@@ -8,8 +8,24 @@
 /// you may redefine this value multiple times in your project (before including the mixin)
 /// @type {color}
 /// @example 
-/// $sassvg--color-default
-$sassvg--color-default: #000;
+/// $sassvg--color
+$sassvg--color: #000;
+
+/// defines whether the sassvg-function returns only the data string or the url as well
+/// @type {Boolean}
+/// @example - all these examples return the same (valid) css/svg
+/// 	$sassvg--url: true;
+/// 	background-image: sassvg("iconname", blue);
+/// 	
+/// 	$sassvg--url: false;
+/// 	background-image: url(sassvg("iconname", blue));
+/// 	
+/// 	$sassvg--url: false;
+/// 	background-image: sassvg("iconname", blue, $url: true);
+/// 	
+/// 	$sassvg--url: true;
+/// 	background-image: url(sassvg("iconname", blue, $url:false));
+$sassvg--url: true;
 
 @import "sassvg-data";
 
@@ -35,7 +51,7 @@ $sassvg--color-default: #000;
 /// @param {uri escaped String} $extrastyles - expert option, may be used to insert style attributes, this currently needs to be an uri-escaped value, or it won't work in IE !!!!
 ///
 /// @throws exception if units are wrong/missing
-/// @require {variable} $sassvg--color-default
+/// @require {variable} $sassvg--color
 /// @require {function} uri-encode-color
 ///
 /// @example
@@ -46,11 +62,12 @@ $sassvg--color-default: #000;
 /// @return {image} - (as data-string)
 @function sassvg(
 	$icon, 
-	$color: $sassvg--color-default, 
+	$color: $sassvg--color, 
 	$fillcolor: $color,
 	$strokecolor: $color, 
 	$opacity: 1,
-	$extrastyles: ""
+	$extrastyles: "",
+	$url: $sassvg--url
 ){
 	@if($opacity != 1){
 	$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles
