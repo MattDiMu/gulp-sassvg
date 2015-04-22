@@ -55,9 +55,9 @@ $sassvg--url: true;
 /// @require {function} uri-encode-color
 ///
 /// @example
-/// 	background-image: url(sassvg("iconname", blue));
-/// 	background-image: url(sassvg("facebook", #FFAFF )); 
-/// 	background-image: url(sassvg("arrow-left", rgba(224, 51, 224, 0.79))); 
+/// 	background-image: sassvg("iconname", blue);
+/// 	background-image: sassvg("facebook", #FFAFF ); 
+/// 	background-image: sassvg("arrow-left", rgba(224, 51, 224, 0.79)); 
 ///
 /// @return {image} - (as data-string)
 @function sassvg(
