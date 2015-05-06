@@ -47,7 +47,11 @@ function addVariables(filePath, fileContent){
 		if($('svg').length !== 1){
 			throw new gutil.PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
 		}
-        $('[fill]').not('[fill=none]').attr('fill', '#{$fillcolor}');
+		if($('[fill]').not('[fill=none]').length > 0){
+    	$('[fill]').not('[fill=none]').attr('fill', '#{$fillcolor}');
+		}else{
+			$('svg').attr('fill', '#{$fillcolor}');
+		}
 		$('[style]').each(function(){
 			var fillValue = $(this).css("fill");
 			if(fillValue !== undefined && fillValue !== 'none'){
@@ -153,6 +157,5 @@ var gulpSassvg = function(optionsGiven){
     return through.obj(listStream, endStream);
 }
 module.exports = gulpSassvg;
-
 
 
