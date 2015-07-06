@@ -52,6 +52,7 @@ $sassvg--url: true;
 ///
 /// @throws exception if units are wrong/missing
 /// @require {variable} $sassvg--color
+/// @require {variable} $sassvg--url
 /// @require {function} uri-encode-color
 ///
 /// @example
@@ -70,7 +71,7 @@ $sassvg--url: true;
 	$url: $sassvg--url
 ){
 	@if($opacity != 1){
-	$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles
+		$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles;
 	}
 
 	$fillcolor: uri-encode-color($fillcolor);
@@ -79,9 +80,9 @@ $sassvg--url: true;
 
 	//some sanity checks
 	@if(type-of($icon) != "string" or type-of($color) != "color" or function-exists($functionname) == false){
-		@warn "wrong parameter(s) for mixin 'icon'. The first one needs to be a string with the fileName of the svg (without extension)";
+		@warn "wrong parameter(s) for function 'sassvg'. The first one needs to be a string with the fileName of the svg (without extension)";
 	}@else{
-		@return call($functionname, $fillcolor, $strokecolor, $extrastyles);
+		@return unquote("url(" + call($functionname, $fillcolor, $strokecolor, $extrastyles) + ")");
 	}
 
 }
@@ -117,3 +118,32 @@ $sassvg--url: true;
 	}
 	@return $iconlist;
 }
+
+// convenience mixin for creating a sassvg-icon with usefull default values
+/// @param {filename} $icon - name of the icon
+/// @param {color} $color - used for fill and stroke
+/// @param {background-position} $position - used for fill and stroke
+/// @param {background-size} $size - setting the background-size property
+/// @param {background-repeat} $repeat - setting the background-repeat property
+/// @param {color} $fillcolor - explicitly used only for fill attributes
+/// @param {strokecolor} $strokecolor - explicitly used only for stroke attributes (if present)
+/// @require {function} sassvg
+/// @example scss
+/// 	
+/// 	.selector {
+/// 		@include sassvg("filename", blue);
+/// 	}
+/// 	...generates..
+/// 	.selector {
+/// 		background-image: url(data:image/svg+xml...);
+/// 		background-repeat: no-repeat;
+/// 		background-position: 0 50%;
+/// 		background-size: 2rem;
+/// 	}
+///
+@mixin sassvg($icon, $color, $position, $size, $repeat, $fillcolor, $strokecolor) { 
+	background-image: sassvg($icon, $color, $fillcolor, $strokecolor, $url: true);
+	background-repeat: unquote($repeat);
+	background-position: unquote($position);
+	background-size: unquote($size);
+ }
