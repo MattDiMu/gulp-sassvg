@@ -133,6 +133,7 @@ $sassvg--url: true;
 /// 	.selector {
 /// 		@include sassvg("filename", blue);
 /// 	}
+/// 
 /// 	...generates..
 /// 	.selector {
 /// 		background-image: url(data:image/svg+xml...);
@@ -141,9 +142,17 @@ $sassvg--url: true;
 /// 		background-size: 2rem;
 /// 	}
 ///
-@mixin sassvg($icon, $color, $position, $size, $repeat, $fillcolor, $strokecolor) { 
+@mixin sassvg(
+	$icon,
+	$color: $sassvg--color, 
+	$position: 0 50%, 
+	$size: 2rem, 
+	$repeat: no-repeat, 
+	$fillcolor: $color, 
+	$strokecolor: $color
+) { 
 	background-image: sassvg($icon, $color, $fillcolor, $strokecolor, $url: true);
 	background-repeat: unquote($repeat);
 	background-position: unquote($position);
 	background-size: unquote($size);
- }
+}
