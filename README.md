@@ -2,7 +2,6 @@
 
 # gulp-sassvg
 
-This plugin is currently under development. Feel free to [file issues/ask questions](https://github.com/MattDiMu/gulp-sassvg/issues), but I wouldn't recommend the production use....yet :)
 
 # How to use
 
@@ -29,9 +28,33 @@ gulp.task('sassvg', function(){
 @import "_sassvg.scss;
 
 .selector {
-  background-image: url( sassvg('filename') );
+  background-image: sassvg('filename');
 }
 ````
+will generate
+````css
+.selector {
+  background: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
+}
+````
+
+````scss
+@import "_sassvg.scss;
+
+.selector {
+  @sassvg('filename');
+}
+````
+will generate
+````css
+.selector {
+  background: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
+  background-position: 50%;
+  background-size: 2rem;
+  
+}
+````
+
 
 #Documentation
 Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.scss file, should be clear how to use the provided sassvg() and the sassvg-list() functions.

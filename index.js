@@ -124,6 +124,9 @@ var gulpSassvg = function(optionsGiven){
     options = optionsGiven || {};
     options.tmpDir = optionsGiven.tmpDir || "./.tmp-sassvg/"; //TODO still necessary?
     options.outputFolder = optionsGiven.outputFolder || "./scss/"; //TODO add some options
+  if( options.outputFolder.indexOf("/", options.outputFolder.length - 1) === -1 ){
+    options.outputFolder = options.outputFolder + "/";
+  }
 		options.outputMainFile = options.outputFolder + "_sassvg.scss";
 		options.outputDataFile = options.outputFolder + "_sassvg-data.scss";
 		options.optimizeSvg = (optionsGiven.optimizeSvg !== undefined) ? optionsGiven.optimizeSvg : true; //true = 25% less filesize, but 3 times as long to create the sass file
