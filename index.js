@@ -48,7 +48,7 @@ function addVariables(filePath, fileContent){
 			throw new gutil.PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
 		}
 		if($('[fill]').not('[fill=none]').length > 0){
-    	$('[fill]').not('[fill=none]').attr('fill', '#{$fillcolor}');
+    	$('[fill]').not('[fill=none]').not('.no-sassvg').attr('fill', '#{$fillcolor}');
 		}else{
 			$('svg').attr('fill', '#{$fillcolor}');
 		}
