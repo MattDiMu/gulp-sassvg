@@ -152,7 +152,10 @@ $sassvg--url: true;
 	$strokecolor: $color
 ) { 
 	background-image: sassvg($icon, $color, $fillcolor, $strokecolor, $url: true);
-	background-repeat: unquote($repeat);
-	background-position: unquote($position);
-	background-size: unquote($size);
+	@if(type-of($repeat) == string) { $repeat: unquote($repeat); }
+	@if(type-of($position) == string) { $position: unquote($position); }
+	@if(type-of($size) == string) { $size: unquote($size); }
+	background-repeat: $repeat;
+	background-position: $position;
+	background-size: $size;
 }
