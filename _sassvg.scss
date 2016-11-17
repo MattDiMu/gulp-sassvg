@@ -9,7 +9,7 @@
 /// @type {color}
 /// @example 
 /// $sassvg--color
-$sassvg--color: #000;
+$sassvg--color: null;
 
 /// defines whether the sassvg-function returns only the data string or the url as well
 /// @type {Boolean}
@@ -73,15 +73,23 @@ $sassvg--url: true;
 	@if($opacity != 1){
 		$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles;
 	}
-
-	$fillcolor: uri-encode-color($fillcolor);
-	$strokecolor: uri-encode-color($strokecolor);
 	$functionname: "sassvg-" + $icon;
 
 	//some sanity checks
-	@if(type-of($icon) != "string" or type-of($color) != "color" or function-exists($functionname) == false){
+	@if(type-of($icon) != "string" or (function-exists($functionname) == false)){
 		@warn "wrong parameter(s) for function 'sassvg'. The first one needs to be a string with the fileName of the svg (without extension)";
 	}@else{
+		@if(type-of($color) == "color"){
+			$fillcolor: uri-encode-color($fillcolor);
+			$strokecolor: uri-encode-color($strokecolor);
+		} @else if ($color == null){
+			$fillcolor: null;
+			$strokecolor: null;
+		}@else {
+			$fillcolor: #000;
+			$strokecolor: #000;
+			@warn "Color value is wrong. Use # or rgb() or rgba(). You can use null to leave original img color";
+		}
 		@return unquote("url(" + call($functionname, $fillcolor, $strokecolor, $extrastyles) + ")");
 	}
 

@@ -25,7 +25,7 @@ gulp.task('sassvg', function(){
 
 ## 
 ````scss
-@import "_sassvg.scss;
+@import "sassvg.scss";
 
 .selector {
   background-image: sassvg('filename');
@@ -39,7 +39,7 @@ will generate
 ````
 
 ````scss
-@import "_sassvg.scss;
+@import "sassvg.scss";
 
 .selector {
   @sassvg('filename');
