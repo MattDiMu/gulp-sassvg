@@ -66,19 +66,22 @@ function addVariables(filePath, fileContent){
 				$(this).css("stroke", '#{if($strokecolor, $strokecolor, ' + strokeValue + ')}');
 			}
 		});
-		var $style = $('style[type="text/css"]');
-		var regex = /(fill|stroke)(:).*?(.*?)(;|})/gm;
-		var replacer = function(item, type, notUsed, val) {
-			var out = null;
-			if(type == 'fill'){
-				out = 'fill: #{if($fillcolor, $fillcolor, ' + val + ')}';
-			}else if(type == 'stroke'){
-				out = 'stroke: #{if($strokecolor, $strokecolor, ' + val + ')}';
+		var $style = $('style'); //adobe photoshop sometimes didn't add type="text/css"
+		if($style.length){
+			var newStyle  = $style.html();
+			var regex = /(fill|stroke)(:).*?(.*?)(;|})/gm;
+			var replacer = function(item, type, notUsed, val) {
+				var out = null;
+				if(type == 'fill'){
+					out = 'fill: #{if($fillcolor, $fillcolor, ' + val + ')}';
+				}else if(type == 'stroke'){
+					out = 'stroke: #{if($strokecolor, $strokecolor, ' + val + ')}';
+				}
+				return out;
 			}
-			return out;
+			newStyle.replace(regex, replacer);
+			$style.html(newStyle);
 		}
-		var newStyle  = $style.html().replace(regex, replacer);
-		$style.html(newStyle);
 		$('svg').each(function(){
 			var styles = $(this).attr("style");
 			$(this).css("empty", "empty;#{$extrastyles}"); //not the very best solution, but makes it valid and works everytime - empty props will be regexed out again
