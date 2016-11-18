@@ -72,6 +72,7 @@ function addVariables(filePath, fileContent){
 			var regex = /(fill|stroke)(:).*?(.*?)(;|})/gm;
 			var replacer = function(item, type, notUsed, val) {
 				var out = null;
+				val = val ? val.trim() : "#000";
 				if(type == 'fill'){
 					out = 'fill: #{if($fillcolor, $fillcolor, ' + val + ')}';
 				}else if(type == 'stroke'){
@@ -79,7 +80,7 @@ function addVariables(filePath, fileContent){
 				}
 				return out;
 			}
-			newStyle.replace(regex, replacer);
+			newStyle = newStyle.replace(regex, replacer);
 			$style.html(newStyle);
 		}
 		$('svg').each(function(){
