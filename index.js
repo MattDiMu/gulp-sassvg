@@ -104,7 +104,16 @@ function encodeSVG(dynamicContent){
 function decodeVariables(encodedContent){
 	var regex = /(%23%7Bif).*?(%7D)/gm; // (#{if).*?(})/gm; in URI
 	var replacer = function(str) {
-	  return decodeURIComponent(str);
+		str = decodeURIComponent(str);
+		/*repair firefox bug
+		 hash sign (#) in the content needs to be escaped as %23 then for sass need to put variable into quotes
+		-----start FF hack----- */
+		var regexForFF = /((#[^#{]).*?)(?=\)})/gm; // searching for a color, skipping #{
+		str = str.replace(regexForFF, function(str) {
+			return '"' + encodeURIComponent(str) + '"';
+		});
+		/* -----finish FF hack----- */
+	  return str;
 	}
 	encodedContent = encodedContent.replace(regex, replacer);
     return encodedContent
