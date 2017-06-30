@@ -4,13 +4,13 @@ var through = require('through2')
 , fs = require('fs')
 , cheerio = require('cheerio')
 , SVGO = require('svgo')
-, svgo = new SVGO();
+, svgo = new SVGO();;
 
 
 // TODO rework with js classes/prototypes and promises, much less functions
 const PLUGIN_NAME = 'gulp-sassvg';
 
-const DATA_PREFIX = "data:image/svg+xml;charset=UTF-8,";
+const DATA_PREFIX = "data:image/svg+xml;charset=US-ASCII,";
 
 
 
@@ -47,50 +47,27 @@ function addVariables(filePath, fileContent){
 		if($('svg').length !== 1){
 			throw new gutil.PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
 		}
-		var $fill = $('[fill]').not('[fill=none]');
-		if($fill.length > 0){
-			var fillValue = $fill.attr('fill');
-			$fill.attr('fill', '#{if($fillcolor, $fillcolor, ' + fillValue + ')}');
+		if($('[fill]').not('[fill=none]').length > 0){
+    	$('[fill]').not('[fill=none]').not('.no-sassvg').attr('fill', '#{$fillcolor}');
 		}else{
-			var $svg = $('svg');
-			var fillValue = $svg.attr('fill');
-			$svg.attr('fill', '#{if($fillcolor, $fillcolor, #000)}');
+			$('svg').attr('fill', '#{$fillcolor}');
 		}
 		$('[style]').each(function(){
 			var fillValue = $(this).css("fill");
 			if(fillValue !== undefined && fillValue !== 'none'){
-				$(this).css("fill", '#{if($fillcolor, $fillcolor, ' + fillValue + ')}');
+				$(this).css("fill", "#{$fillcolor}");	
 			}
 			var strokeValue = $(this).css("stroke");
 			if(strokeValue !== undefined && strokeValue !== 'none'){
-				$(this).css("stroke", '#{if($strokecolor, $strokecolor, ' + strokeValue + ')}');
+				$(this).css("stroke", "#{$strokecolor}");	
 			}
 		});
-		var $style = $('style'); //adobe photoshop sometimes didn't add type="text/css"
-		if($style.length){
-			var newStyle  = $style.html();
-			var regex = /(fill|stroke)(:).*?(.*?)(;|})/gm;
-			var replacer = function(item, type, notUsed, val) {
-				var out = null;
-				val = val ? val.trim() : "#000";
-				if(type == 'fill'){
-					out = 'fill: #{if($fillcolor, $fillcolor, ' + val + ')}';
-				}else if(type == 'stroke'){
-					out = 'stroke: #{if($strokecolor, $strokecolor, ' + val + ')}';
-				}
-				return out;
-			}
-			newStyle = newStyle.replace(regex, replacer);
-			$style.html(newStyle);
-		}
 		$('svg').each(function(){
 			var styles = $(this).attr("style");
 			$(this).css("empty", "empty;#{$extrastyles}"); //not the very best solution, but makes it valid and works everytime - empty props will be regexed out again
 		});
-		var $stroke = $('[stroke]').not('[stroke=none]');
-		var strokeValue = $(this).attr('stroke');
-		$stroke.attr('stroke', '#{if($strokecolor, $strokecolor, ' + strokeValue + ')}');
-        return $.html('svg'); //return only the svg 
+        $('[stroke]').not('[stroke=none]').attr('stroke', '#{$strokecolor}');
+        return $.html('svg'); //return only the svg    
 }
 
 function encodeSVG(dynamicContent){
@@ -102,22 +79,9 @@ function encodeSVG(dynamicContent){
 }
 
 function decodeVariables(encodedContent){
-	var regex = /(%23%7Bif).*?(%7D)/gm; // (#{if).*?(})/gm; in URI
-	var replacer = function(str) {
-		str = decodeURIComponent(str);
-		/*repair firefox bug
-		 hash sign (#) in the content needs to be escaped as %23 then for sass need to put variable into quotes
-		-----start FF hack----- */
-		var regexForFF = /((#[^#{]).*?)(?=\)})/gm; // searching for a color, skipping #{
-		str = str.replace(regexForFF, function(str) {
-			return '"' + encodeURIComponent(str) + '"';
-		});
-		/* -----finish FF hack----- */
-	  return str;
-	}
-	encodedContent = encodedContent.replace(regex, replacer);
-    return encodedContent
-		.replace(sassVarRegex("extrastyles", ";"), "#{$extrastyles}")
+    return encodedContent.replace(sassVarRegex("fillcolor"), "#{$fillcolor}")
+        .replace(sassVarRegex("strokecolor"), "#{$strokecolor}")
+        .replace(sassVarRegex("extrastyles", ";"), "#{$extrastyles}")
 		.replace(/empty%3A%20empty%3B/gm, "");//correct the empty styles props
 }
 
