@@ -1,6 +1,6 @@
 //require what we need
 var through = require('through2')
-, gutil = require('gulp-util')
+, PluginError = require('plugin-error')
 , fs = require('fs')
 , cheerio = require('cheerio')
 , SVGO = require('svgo')
@@ -45,7 +45,7 @@ function addVariables(filePath, fileContent){
             xmlMode: true
         });
 		if($('svg').length !== 1){
-			throw new gutil.PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
+			throw new PluginError(PLUGIN_NAME, "Wrong SVG-File at '" + filePath +  "'.");
 		}
 		if($('[fill]').not('[fill=none]').length > 0){
     	$('[fill]').not('[fill=none]').not('.no-sassvg').attr('fill', '#{$fillcolor}');
@@ -93,7 +93,7 @@ function optimizeSvg(writeStream, cb, filePath, svgString){
     svgo.optimize(svgString, function(result) {
 		var optimizedSvg;
 		if(result.error){
-			throw new gutil.PluginError(PLUGIN_NAME, "SVG couldn't be optimized: '" + file.path +  "', will try to SASSVG it without optimizing.");
+			throw new PluginError(PLUGIN_NAME, "SVG couldn't be optimized: '" + file.path +  "', will try to SASSVG it without optimizing.");
 			optimizedSvg = String(file.contents);
 		}else{
 			optimizedSvg = result.data;	
