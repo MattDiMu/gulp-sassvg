@@ -57,8 +57,13 @@ will generate
 
 
 #Documentation
-Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.scss file, should be clear how to use the provided sassvg() and the sassvg-list() functions.
+Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.scss file, should be clear how to use the provided sassvg() and the sassvg-list() functions. Here are some screeenshots of the essential sassdoc parts:
 
+![sassvg function](function_sassvg.png)
+
+![sassvg-list function](function_sassvg-list.png)
+
+![sassvg mixin](mixin_sassvg.png)
 
 
 #FAQ
