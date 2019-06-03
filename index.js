@@ -90,7 +90,7 @@ function assembleDataString(fileName, finalContent){
 }
 
 function optimizeSvg(writeStream, cb, filePath, svgString){
-    svgo.optimize(svgString, function(result) {
+    svgo.optimize(svgString).then(function(result) {
 		var optimizedSvg;
 		if(result.error){
 			throw new PluginError(PLUGIN_NAME, "SVG couldn't be optimized: '" + file.path +  "', will try to SASSVG it without optimizing.");
