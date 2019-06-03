@@ -82,7 +82,7 @@ $sassvg--url: true;
 	@if(type-of($icon) != "string" or type-of($color) != "color" or function-exists($functionname) == false){
 		@warn "wrong parameter(s) for function 'sassvg'. The first one needs to be a string with the fileName of the svg (without extension)";
 	}@else{
-		@return unquote("url(" + call($functionname, $fillcolor, $strokecolor, $extrastyles) + ")");
+		@return unquote("url(" + call(get-function($functionname), $fillcolor, $strokecolor, $extrastyles) + ")");
 	}
 
 }
