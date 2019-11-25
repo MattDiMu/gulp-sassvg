@@ -94,4 +94,4 @@ Due to performance reasons. I've tested all possibilities to create dynamic SVGs
 
 
 **Does sassvg work with libSass**
-LibSass is even encouraged for best performance, but it works with RubySass as well.
+LibSass is even encouraged for best performance, but it works with RubySass or DartSass as well.
