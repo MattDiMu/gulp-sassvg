@@ -66,7 +66,7 @@ Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.s
 ![sassvg mixin](mixin_sassvg.png)
 
 
-#FAQ
+# FAQ
 
 **Browser support
 IT works in every browser supporting SVGs (basically IE9+ and Android 3+), detailled information may be found here: http://caniuse.com/#search=svg
