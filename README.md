@@ -67,11 +67,12 @@ Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.s
 
 
 #FAQ
+
 **Browser support
 IT works in every browser supporting SVGs (basically IE9+ and Android 3+), detailled information may be found here: http://caniuse.com/#search=svg
 
 **Performance?
-Sassvg is blazingly fast. It's approximately 1ms/icon with libsass. So even if you have 100 different icons, the you will see the result after about 0.08-0.12 seconds. 
+Sassvg is blazingly fast. It's approximately 0.1ms/icon with libsass. So even if you have 100 different icons, the you will see the result after about 0.08-0.12 seconds. 
 
 **What about the File Size?
 Make sure you serve the CSS-File gzipped (which should be standard nowadays on every server). Then your transfered file-size will be even **lower* than if you would serve them "normally" by referencing the background-images via url. How?
