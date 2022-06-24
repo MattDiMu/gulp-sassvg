@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/MattDiMu/gulp-sassvg",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "1.0.0-rc.10",
     "plugin-error": "^1.0.1",
     "svgo": "^1.2.2",
     "through2": "^0.6.5"
