@@ -55,6 +55,17 @@ will generate
 }
 ````
 
+In svg files use no-sassvg class on elements where color, stroke or style should not be replaced:
+````xml
+<path stroke="#535A64" ... />
+<path class="no-sassvg" stroke="#535A64" ... />
+````
+will generate
+````xml
+<path stroke="#{$strokecolor}" ... />
+<path class="no-sassvg" stroke="#535A64" ... />
+````
+
 
 ## Documentation
 Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.scss file, should be clear how to use the provided sassvg() and the sassvg-list() functions. Here are some screeenshots of the essential sassdoc parts:
