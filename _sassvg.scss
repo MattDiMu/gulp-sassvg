@@ -4,42 +4,62 @@
 /// @group sassvg
 ////
 
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+@use "sassvg-data" as *;
+
 /// default color, if the sassvg() mixin gets no color parameter
 /// you may redefine this value multiple times in your project (before including the mixin)
 /// @type {color}
-/// @example 
-/// $sassvg--color
-$sassvg--color: #000;
+/// @example
+///   @use "sassvg" with (
+///     $sassvg--color: blue
+///   );
+$sassvg--color: #000 !default;
 
 /// defines whether the sassvg-function returns only the data string or the url as well
 /// @type {Boolean}
 /// @example - all these examples return the same (valid) css/svg
-/// 	$sassvg--url: true;
-/// 	background-image: sassvg("iconname", blue);
-/// 	
-/// 	$sassvg--url: false;
-/// 	background-image: url(sassvg("iconname", blue));
-/// 	
-/// 	$sassvg--url: false;
-/// 	background-image: sassvg("iconname", blue, $url: true);
-/// 	
-/// 	$sassvg--url: true;
-/// 	background-image: url(sassvg("iconname", blue, $url:false));
-$sassvg--url: true;
-
-@import "sassvg-data";
+///   @use "sassvg" with (
+/// 	  $sassvg--url: true
+///   ) as *;
+///   background-image: sassvg("iconname", blue);
+///
+///   @use "sassvg" with (
+/// 	  $sassvg--url: false
+///   ) as *;
+///   background-image: url(sassvg("iconname", blue));
+///
+///   @use "sassvg" with (
+/// 	  $sassvg--url: false
+///   ) as *;
+///   background-image: sassvg("iconname", blue, $url: true);
+///
+///   @use "sassvg" with (
+/// 	  $sassvg--url: true;
+///   ) as *;
+///   background-image: url(sassvg("iconname", blue, $url:false));
+$sassvg--url: true !default;
 
 /// returns an uri-encoded color value
 /// if possible, the color is reduced to rgb, otherwise rgba
 /// @return {color} (uri-encoded)
-@function uri-encode-color($color){
-	@if(alpha($color) != 1){
-		@return "rgba%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%2C" + round(alpha($color)) + "%29";
-	}@else{
-		@return "rgb%28" + round(red($color)) + "%2C" + round(green($color)) + "%2C" + round(blue($color)) + "%29";
+@function uri-encode-color($color) {
+  $red: math.round(color.channel($color, "red", $space: rgb));
+  $green: math.round(color.channel($color, "green", $space: rgb));
+  $blue: math.round(color.channel($color, "blue", $space: rgb));
+  $alpha: color.alpha($color);
+
+	@if $alpha != 1 {
+		@return "rgba%28" + $red + "%2C" + $green + "%2C" + $blue + "%2C" + $alpha + "%29";
+	} @else{
+		@return "rgb%28" + $red + "%2C" + $green + "%2C" + $blue + "%29";
 	}
 }
-
 
 /// creates a dynamic svg, e.g. colored
 ///
@@ -57,20 +77,20 @@ $sassvg--url: true;
 ///
 /// @example
 /// 	background-image: sassvg("iconname", blue);
-/// 	background-image: sassvg("facebook", #FFAFF ); 
-/// 	background-image: sassvg("arrow-left", rgba(224, 51, 224, 0.79)); 
+/// 	background-image: sassvg("facebook", #FFAFF);
+/// 	background-image: sassvg("arrow-left", rgba(224, 51, 224, 0.79));
 ///
 /// @return {image} - (as data-string)
 @function sassvg(
-	$icon, 
-	$color: $sassvg--color, 
+	$icon,
+	$color: $sassvg--color,
 	$fillcolor: $color,
-	$strokecolor: $color, 
+	$strokecolor: $color,
 	$opacity: 1,
 	$extrastyles: "",
 	$url: $sassvg--url
-){
-	@if($opacity != 1){
+) {
+	@if $opacity != 1 {
 		$extrastyles: "opacity%3A" + $opacity + "%3B" + $extrastyles;
 	}
 
@@ -79,12 +99,11 @@ $sassvg--url: true;
 	$functionname: "sassvg-" + $icon;
 
 	//some sanity checks
-	@if(type-of($icon) != "string" or type-of($color) != "color" or function-exists($functionname) == false){
+	@if meta.type-of($icon) != "string" or meta.type-of($color) != "color" or meta.function-exists($functionname) == false {
 		@warn "wrong parameter(s) for function 'sassvg'. The first one needs to be a string with the fileName of the svg (without extension)";
-	}@else{
-		@return unquote("url(" + call(get-function($functionname), $fillcolor, $strokecolor, $extrastyles) + ")");
+	} @else{
+		@return string.unquote("url(" + meta.call(meta.get-function($functionname), $fillcolor, $strokecolor, $extrastyles) + ")");
 	}
-
 }
 
 /// returns all sassvg-ed icons, optionally filtered by their folder
@@ -100,40 +119,39 @@ $sassvg--url: true;
 /// 	}
 ///
 /// @example css - then it will generate css like this
-/// 	
 /// 	.social-facebook {
 /// 		background-image: url(data:image/svg+xml...);
 /// 	}
 /// 	.social-twitter {
 /// 		background-image: url(data:image/svg+xml...);
-/// 	} 	
+/// 	}
 ///
-@function sassvg-list($folder: null){
-	$iconlist: ();
-	@each $key in map-keys($sassvg-map){
+@function sassvg-list($folder: null) {
+  $iconlist: ();
 
-		@if(map-get(map-get($sassvg-map, $key), 'folder') == $folder){
-      $iconlist: append($iconlist, unquote(map-get(map-get($sassvg-map, $key), 'name')));
+	@each $key in map.keys($sassvg-map) {
+		@if map.get(map.get($sassvg-map, $key), "folder") == $folder {
+      $iconlist: list.append($iconlist, string.unquote(map.get(map.get($sassvg-map, $key), "name")));
 		}
 	}
+
 	@return $iconlist;
 }
 
 // convenience mixin for creating a sassvg-icon with usefull default values
 /// @param {filename} $icon - name of the icon
 /// @param {color} $color - used for fill and stroke
-/// @param {background-position} $position - used for fill and stroke
+/// @param {background-position} $position - setting the background-position property
 /// @param {background-size} $size - setting the background-size property
 /// @param {background-repeat} $repeat - setting the background-repeat property
 /// @param {color} $fillcolor - explicitly used only for fill attributes
 /// @param {strokecolor} $strokecolor - explicitly used only for stroke attributes (if present)
 /// @require {function} sassvg
 /// @example scss
-/// 	
 /// 	.selector {
 /// 		@include sassvg("filename", blue);
 /// 	}
-/// 
+///
 /// 	...generates..
 /// 	.selector {
 /// 		background-image: url(data:image/svg+xml...);
@@ -144,18 +162,19 @@ $sassvg--url: true;
 ///
 @mixin sassvg(
 	$icon,
-	$color: $sassvg--color, 
-	$position: 0 50%, 
-	$size: 2rem 2rem, 
-	$repeat: no-repeat, 
-	$fillcolor: $color, 
+	$color: $sassvg--color,
+	$position: 0 50%,
+	$size: 2rem 2rem,
+	$repeat: no-repeat,
+	$fillcolor: $color,
 	$strokecolor: $color
-) { 
-	background-image: sassvg($icon, $color, $fillcolor, $strokecolor, $url: true);
-	@if(type-of($repeat) == string) { $repeat: unquote($repeat); }
-	@if(type-of($position) == string) { $position: unquote($position); }
-	@if(type-of($size) == string) { $size: unquote($size); }
-	background-repeat: $repeat;
-	background-position: $position;
-	background-size: $size;
+) {
+  @if meta.type-of($repeat) == string { $repeat: string.unquote($repeat); }
+  @if meta.type-of($position) == string { $position: string.unquote($position); }
+  @if meta.type-of($size) == string { $size: string.unquote($size); }
+
+  background-image: sassvg($icon, $color, $fillcolor, $strokecolor, $url: true);
+  background-repeat: $repeat;
+  background-position: $position;
+  background-size: $size;
 }

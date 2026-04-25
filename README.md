@@ -14,18 +14,26 @@ npm install gulp-sassvg --save-dev
 ```
 var sassvg = require('gulp-sassvg');
 
-gulp.task('sassvg', function(){
-    return gulp.src('./path/to/images/folder/**/*.svg') 
-        .pipe(sassvg({
-          outputFolder: './sassvg/', // IMPORTANT: this folder needs to exist
-			optimizeSvg: true // true (default) means about 25% reduction of generated file size, but 3x time for generating the _icons.scss file
-        }));
+gulp.task('sassvg', function() {
+  return gulp.src('./path/to/images/folder/**/*.svg')
+    .pipe(sassvg({
+      outputFolder: './sassvg/', // IMPORTANT: this folder needs to exist
+      optimizeSvg: true // true (default) means about 25% reduction of generated file size, but 3x time for generating the _icons.scss file
+    }));
 });
 ```
 
-## 
+##
 ````scss
-@import "_sassvg.scss;
+@use "sassvg";
+
+.selector {
+  background-image: sassvg.sassvg('filename');
+}
+````
+or
+````scss
+@use "sassvg" as *;
 
 .selector {
   background-image: sassvg('filename');
@@ -34,24 +42,24 @@ gulp.task('sassvg', function(){
 will generate
 ````css
 .selector {
-  background: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
 }
 ````
 
 ````scss
-@import "_sassvg.scss;
+@use "sassvg" as *;
 
 .selector {
-  @sassvg('filename');
+  @include sassvg('filename');
 }
 ````
 will generate
 ````css
 .selector {
-  background: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
-  background-position: 50%;
+  background-image: url('data:image/svg+xml;utf8,<svg ...> ... </svg>');
+  background-repeat: no-repeat;
+  background-position: 0 50%;
   background-size: 2rem;
-  
 }
 ````
 
@@ -72,7 +80,7 @@ Documentation may be generated using sassdoc. Otherwise, just read the _sassvg.s
 IT works in every browser supporting SVGs (basically IE9+ and Android 3+), detailled information may be found here: http://caniuse.com/#search=svg
 
 **Performance?**
-Sassvg is blazingly fast. It's approximately 0.1ms/icon with libsass. So even if you have 100 different icons, the you will see the result after about 0.08-0.12 seconds. 
+Sassvg is blazingly fast. It's approximately 0.1ms/icon with libsass. So even if you have 100 different icons, the you will see the result after about 0.08-0.12 seconds.
 
 **What about the File Size?**
 Make sure you serve the CSS-File gzipped (which should be standard nowadays on every server). Then your transfered file-size will be even **lower** than if you would serve them "normally" by referencing the background-images via url. How?
